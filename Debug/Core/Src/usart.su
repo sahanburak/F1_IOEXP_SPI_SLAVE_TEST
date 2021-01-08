@@ -1,7 +1,0 @@
-usart.c:33:6:MX_USART1_UART_Init	8	static
-usart.c:51:6:HAL_UART_MspInit	40	static
-usart.c:101:6:HAL_UART_MspDeInit	16	static
-usart.c:127:6:vprint	216	static
-usart.c:136:6:vprintln	216	static
-usart.c:146:6:dbprintf	16	static
-usart.c:154:6:rtprintf	16	static

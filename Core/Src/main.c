@@ -37,7 +37,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define SPI_BUF_SIZE 8
+#define SPI_BUF_SIZE 2048
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -111,7 +111,8 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   uint8_t count = 0;
-  uint32_t test[2]= {0x01020304, 0x05060708};
+  //uint32_t test[2]= {0x01020304, 0x05060708};
+  uint32_t test[2]= {0, 0};
   dbprintf("Rota SPI Test Application");
   while (1)
   {
@@ -119,19 +120,19 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  currentDMA = hspi1.hdmarx->Instance->CNDTR;
-	  if((prevDMA-currentDMA) == 8){
-		  for(uint8_t i=0;i<8;i++){
+	  if((prevDMA-currentDMA) == 9){
+		  /*for(uint8_t i=0;i<8;i++){
 			  rtprintf("%02X ",rData[SPI_BUF_SIZE-prevDMA+i]);
-		  }
+		  }*/
 		  test[0] +=0x01010101;
 		  test[1] +=0x01010101;
 		  memcpy(tData,&test[0],(prevDMA-currentDMA));
 		  prevDMA = currentDMA;
-		  dbprintf("\n\rTest %d  currentDMA:%d tData[0]:%02X",++count,currentDMA,tData[0]);
+		  //dbprintf("\n\rTest %d  currentDMA:%d tData[0]:%02X",++count,currentDMA,tData[0]);
 		  //HAL_SPI_Transmit_DMA(&hspi1, (uint32_t)tData, SPI_BUF_SIZE);
 		  SPI_DMA_Reset();
 	  }
-	  HAL_Delay(500);
+	  //HAL_Delay(500);
   }
   /* USER CODE END 3 */
 }
