@@ -266,7 +266,7 @@ void SPI1_IRQHandler(void)
   /* USER CODE END SPI1_IRQn 0 */
   HAL_SPI_IRQHandler(&hspi1);
   /* USER CODE BEGIN SPI1_IRQn 1 */
-	dbprintf("%s",__func__);
+	//dbprintf("%s",__func__);
   /* USER CODE END SPI1_IRQn 1 */
 }
 
