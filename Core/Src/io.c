@@ -50,7 +50,8 @@ uint16_t DIRECT_OUTPUT_PIN_LIST[12]={
 		EXT_LED3_Pin,
 		EXT_LED4_Pin};
 
-#define DIRECT_OUTPUT_SIZE sizeof(DIRECT_OUTPUT_PIN_LIST)/sizeof(uint16_t)
+#define DIRECT_OUTPUT_COUNT sizeof(DIRECT_OUTPUT_PIN_LIST)/sizeof(uint16_t)
+#define INDIRECT_OUTPUT_COUNT 8
 /*============================================================================*/
 /* Constants and macros                                                       */
 /*============================================================================*/
@@ -84,7 +85,7 @@ void io_init(void)
 	PIN_SET(EXP_OEN_GPIO_Port,EXP_OEN_Pin);
 	PIN_SET(EXP_DOUT_GPIO_Port,EXP_DOUT_Pin);
 	PIN_RST(EXP_OEN_GPIO_Port,EXP_OEN_Pin); // Enable Outputs
-	io_update();
+	io_update(0);
 }
 
 void io_do(uint8_t ch, uint8_t val)
@@ -99,15 +100,15 @@ void io_do(uint8_t ch, uint8_t val)
 	}
 }
 
-void io_update(void) // Takes about 12.5uS for do only 21uS with do and di
+void io_update(uint8_t count) // Takes about 12.5uS for do only 21uS with do and di
 {
 	if(prev_PDI.dout != g_PDI.dout){
 		//dbprintf("New Out received : %08X",g_PDI.dout);
-		HAL_GPIO_TogglePin(TP1_GPIO_Port, TP1_Pin);
+		//HAL_GPIO_TogglePin(TP1_GPIO_Port, TP1_Pin);
 		prev_PDI.dout = g_PDI.dout;
 	}
-#if 1
 
+#if 0
 	for (int i=0;i<8;i++)
 	{
 		HAL_GPIO_WritePin(EXP_CLK_GPIO_Port, EXP_CLK_Pin, 0);
@@ -125,12 +126,34 @@ void io_update(void) // Takes about 12.5uS for do only 21uS with do and di
 		HAL_GPIO_WritePin(EXP_CLK_GPIO_Port, EXP_CLK_Pin, 1);
 		//PIN_SET(EXP_CLK_GPIO_Port,EXP_CLK_Pin);
 	}
-	/*PIN_RST(EXP_LATCH_GPIO_Port,EXP_LATCH_Pin);
-	PIN_SET(EXP_LATCH_GPIO_Port,EXP_LATCH_Pin);*/
-	HAL_GPIO_WritePin(EXP_LATCH_GPIO_Port, EXP_LATCH_Pin, 0);
-	HAL_GPIO_WritePin(EXP_LATCH_GPIO_Port, EXP_LATCH_Pin, 1);
+#endif
+
+	HAL_GPIO_WritePin(EXP_CLK_GPIO_Port, EXP_CLK_Pin, 0);
+	//PIN_RST(EXP_CLK_GPIO_Port,EXP_CLK_Pin);
+	if (g_PDI.dout & (1<<(count%INDIRECT_OUTPUT_COUNT)))
+		HAL_GPIO_WritePin(EXP_DOUT_GPIO_Port,EXP_DOUT_Pin,1);
+	else
+		HAL_GPIO_WritePin(EXP_DOUT_GPIO_Port,EXP_DOUT_Pin,0);
+
+	if (EXP_DIN_GPIO_Port->IDR & EXP_DIN_Pin)//HAL_GPIO_ReadPin(EXP_DIN_GPIO_Port, EXP_DIN_Pin))//
+		g_PDO.din &= (~(1<<(count%INDIRECT_OUTPUT_COUNT)));
+	else
+		g_PDO.din |= (1<<(count%INDIRECT_OUTPUT_COUNT));
+
+	HAL_GPIO_WritePin(EXP_CLK_GPIO_Port, EXP_CLK_Pin, 1);
+
+	if(count%INDIRECT_OUTPUT_COUNT == (INDIRECT_OUTPUT_COUNT-1)){
+		HAL_GPIO_WritePin(EXP_LATCH_GPIO_Port, EXP_LATCH_Pin, 0);
+		HAL_GPIO_WritePin(EXP_LATCH_GPIO_Port, EXP_LATCH_Pin, 1);
+	}
 	/*connected to direct STM outputs operations*/
-	for (int i=0;i<DIRECT_OUTPUT_SIZE;i++)
+	if (g_PDI.dout & (1<<((count%DIRECT_OUTPUT_COUNT)+8)))
+		HAL_GPIO_WritePin(DIRECT_OUTPUT_PORT_LIST[(count%DIRECT_OUTPUT_COUNT)],DIRECT_OUTPUT_PIN_LIST[(count%DIRECT_OUTPUT_COUNT)],1);
+	else
+		HAL_GPIO_WritePin(DIRECT_OUTPUT_PORT_LIST[(count%DIRECT_OUTPUT_COUNT)],DIRECT_OUTPUT_PIN_LIST[(count%DIRECT_OUTPUT_COUNT)],0);
+
+#if 0
+	for (int i=0;i<DIRECT_OUTPUT_COUNT;i++)
 	{
 		if (g_PDI.dout & (1<<(i+8)))
 			HAL_GPIO_WritePin(DIRECT_OUTPUT_PORT_LIST[i],DIRECT_OUTPUT_PIN_LIST[i],1);

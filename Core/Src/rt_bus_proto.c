@@ -62,6 +62,7 @@ extern uint16_t currentDMA;
 extern uint16_t prevDMA;
 extern tPDO g_PDO;
 extern tPDI g_PDI;
+extern uint32_t count;
 /*============================================================================*/
 /* Module global data                                                         */
 /*============================================================================*/
@@ -145,7 +146,6 @@ uint32_t rt_bus_cmd_read_data_handler(uint8_t *rxData,uint16_t rxLen,uint8_t *tx
 	test[1] +=0x01010101;
 	memcpy(&txData[0],&test[0],8);
 	*txLen = 8;
-	HAL_GPIO_TogglePin(TP1_GPIO_Port, TP1_Pin);
 	return RT_PROTO_OK;
 }
 /*
@@ -436,16 +436,25 @@ void rt_bus_proto_bl_dt(void)
 
 
 void rt_get_io_values(void){
+	//dbprintf("gSPI_Tx_Buf: %02X%02X%02X%02X sizeof(tPDO): %d",gSPI_Tx_Buf[4],gSPI_Tx_Buf[5],gSPI_Tx_Buf[6],gSPI_Tx_Buf[7],sizeof(tPDO));
 	uint16_t currentDMACnt = hspi1.hdmarx->Instance->CNDTR;
-	dbprintf("Timeout resetting  size: %d currentDMACnt:%d...",(prevDMACnt-currentDMACnt),currentDMACnt);
-	if((prevDMACnt-currentDMACnt) == (sizeof(tPDI)+1)){
-		lastRxTime = HAL_GetTick();
+	if((prevDMACnt-currentDMACnt) > 0 && (prevDMACnt-currentDMACnt) != 13){
+		//dbprintf("diff : %d",(prevDMACnt-currentDMACnt));
+	}
+	if((prevDMACnt-currentDMACnt) >= (sizeof(tPDI)+1)){
+		//lastRxTime = HAL_GetTick();
+		count++;
+		HAL_GPIO_WritePin(TP1_GPIO_Port, TP1_Pin,0);
 		memcpy(&g_PDI,&gSPI_Rx_Buf[1],sizeof(tPDI));
-		io_update();
-		g_PDO.ssi = ssi_read();
-		memcpy(&gSPI_Tx_Buf[0],&g_PDO,sizeof(tPDO));
+		//io_update();
+		/*g_PDO.ssi = ssi_read();
+		memcpy(&gSPI_Tx_Buf[4],&g_PDO.ssi,4);*/
+		memcpy(&gSPI_Tx_Buf[0],&g_PDO,8);
+		//dbprintf("SSI RAW: %08X  Din: %08X",g_PDO.ssi,g_PDO.din);
+
 		prevDMACnt = currentDMACnt;
 		SPI_DMA_Reset();
+		HAL_GPIO_WritePin(TP1_GPIO_Port, TP1_Pin,1);
 	}
 	/*if ((prevDMACnt-currentDMACnt) != 0)
 	{

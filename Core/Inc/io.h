@@ -58,6 +58,7 @@
 #define HAL_GPIO_DI_DI_3			(1)
 #define HAL_GPIO_DI_DI_2			(2)
 #define HAL_GPIO_DI_DI_1			(3)
+
 #define HAL_GPIO_DI_BTN_3			(4)
 #define HAL_GPIO_DI_BTN_2			(5)
 #define HAL_GPIO_DI_BTN_1			(6)
@@ -119,7 +120,7 @@ typedef struct
 /*============================================================================*/
 
 void io_init(void);
-void io_update(void);
+void io_update(uint8_t count);
 void io_do(uint8_t ch, uint8_t val);
 
 #endif /* INC_IO_H_ */

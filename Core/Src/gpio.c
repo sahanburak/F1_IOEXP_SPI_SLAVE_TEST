@@ -30,9 +30,9 @@
 
 /* USER CODE END 1 */
 
-/** Configure pins as 
-        * Analog 
-        * Input 
+/** Configure pins as
+        * Analog
+        * Input
         * Output
         * EVENT_OUT
         * EXTI
@@ -49,22 +49,24 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, AIN0_MODE_SEL_Pin|AIN1_MODE_SEL_Pin|AIN2_MODE_SEL_Pin|AIN3_MODE_SEL_Pin 
-                          |EXP_CLK_Pin|EXP_OEN_Pin|EXP_DOUT_Pin|INT_LED1_Pin 
-                          |INT_LED2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, AIN0_MODE_SEL_Pin|AIN1_MODE_SEL_Pin|AIN2_MODE_SEL_Pin|AIN3_MODE_SEL_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, TP1_Pin|TP2_Pin|EXT_LED1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, DAC_20mA_SEL_Pin|DAC_40mA_SEL_Pin|DAC_100mA_SEL_Pin|EXT_LED2_Pin 
+  HAL_GPIO_WritePin(GPIOB, DAC_20mA_SEL_Pin|DAC_40mA_SEL_Pin|DAC_100mA_SEL_Pin|EXT_LED2_Pin
                           |EXT_LED3_Pin|EXT_LED4_Pin|EXP_LATCH_Pin|LCD_RES_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PCPin PCPin PCPin PCPin 
-                           PCPin PCPin PCPin PCPin 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, EXP_CLK_Pin|EXP_OEN_Pin|EXP_DOUT_Pin|INT_LED1_Pin
+                          |INT_LED2_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PCPin PCPin PCPin PCPin
+                           PCPin PCPin PCPin PCPin
                            PCPin */
-  GPIO_InitStruct.Pin = AIN0_MODE_SEL_Pin|AIN1_MODE_SEL_Pin|AIN2_MODE_SEL_Pin|AIN3_MODE_SEL_Pin 
-                          |EXP_CLK_Pin|EXP_OEN_Pin|EXP_DOUT_Pin|INT_LED1_Pin 
+  GPIO_InitStruct.Pin = AIN0_MODE_SEL_Pin|AIN1_MODE_SEL_Pin|AIN2_MODE_SEL_Pin|AIN3_MODE_SEL_Pin
+                          |EXP_CLK_Pin|EXP_OEN_Pin|EXP_DOUT_Pin|INT_LED1_Pin
                           |INT_LED2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -84,9 +86,9 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(STM_MODE_SEL_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PBPin PBPin PBPin PBPin 
+  /*Configure GPIO pins : PBPin PBPin PBPin PBPin
                            PBPin PBPin PBPin PBPin */
-  GPIO_InitStruct.Pin = DAC_20mA_SEL_Pin|DAC_40mA_SEL_Pin|DAC_100mA_SEL_Pin|EXT_LED2_Pin 
+  GPIO_InitStruct.Pin = DAC_20mA_SEL_Pin|DAC_40mA_SEL_Pin|DAC_100mA_SEL_Pin|EXT_LED2_Pin
                           |EXT_LED3_Pin|EXT_LED4_Pin|EXP_LATCH_Pin|LCD_RES_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
