@@ -30,6 +30,7 @@
 #include <string.h>
 #include "rt_bus_proto.h"
 #include "io.h"
+#include "ad529x.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -109,15 +110,26 @@ int main(void)
   MX_USART1_UART_Init();
   MX_SPI1_Init();
   MX_SPI2_Init();
+  MX_SPI3_Init();
   /* USER CODE BEGIN 2 */
+  AD529x_Init();
 	memset(gSPI_Tx_Buf,0,SPI_TX_BUF_SIZE);
-	HAL_SPI_TransmitReceive_DMA(&hspi1,gSPI_Tx_Buf, gSPI_Rx_Buf, SPI_TX_BUF_SIZE);
+	//HAL_SPI_TransmitReceive_DMA(&hspi1,gSPI_Tx_Buf, gSPI_Rx_Buf, SPI_TX_BUF_SIZE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	dbprintf("Rota SPI Test Application");
 	uint8_t output_count = 0;
+	int resVal = 50000;
+	while(1){
+
+		//resVal += 100;
+		AD529x_SetResistor(resVal);
+		if(resVal > 50000)
+			resVal = 0;
+		HAL_Delay(2000);
+	}
 	while (1)
 	{
     /* USER CODE END WHILE */

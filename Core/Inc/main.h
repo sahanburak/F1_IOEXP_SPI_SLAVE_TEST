@@ -106,6 +106,8 @@ void Error_Handler(void);
 #define EXT_BTN2_GPIO_Port GPIOA
 #define EXT_BTN1_Pin GPIO_PIN_12
 #define EXT_BTN1_GPIO_Port GPIOA
+#define SPI3_CS_Pin GPIO_PIN_15
+#define SPI3_CS_GPIO_Port GPIOA
 #define INT_LED1_Pin GPIO_PIN_11
 #define INT_LED1_GPIO_Port GPIOC
 #define INT_LED2_Pin GPIO_PIN_12
