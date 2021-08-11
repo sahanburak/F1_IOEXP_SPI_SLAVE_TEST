@@ -32,7 +32,9 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "SH1107/sh1107.h"
+#include "SH1107/sh1107_fonts.h"
+#include "SH1107/sh1107_test.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -112,6 +114,10 @@ void Error_Handler(void);
 #define INT_LED1_GPIO_Port GPIOC
 #define INT_LED2_Pin GPIO_PIN_12
 #define INT_LED2_GPIO_Port GPIOC
+#define LCD_SCL_Pin GPIO_PIN_6
+#define LCD_SCL_GPIO_Port GPIOB
+#define LCD_SDA_Pin GPIO_PIN_7
+#define LCD_SDA_GPIO_Port GPIOB
 #define LCD_RES_Pin GPIO_PIN_8
 #define LCD_RES_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */

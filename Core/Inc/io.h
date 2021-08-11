@@ -120,8 +120,9 @@ typedef struct
 /*============================================================================*/
 
 void io_init(void);
-void io_update(uint8_t count);
+void io_update_old(uint8_t count);
 void io_do(uint8_t ch, uint8_t val);
+uint8_t io_update(void);
 
 #endif /* INC_IO_H_ */
 /**@}*/

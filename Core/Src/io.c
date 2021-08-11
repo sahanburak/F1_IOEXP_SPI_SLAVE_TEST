@@ -19,6 +19,9 @@
 #include "stm32f1xx_hal.h"
 #include "io.h"
 #include "main.h"
+#include "spi.h"
+#include <stdint.h>
+#include <stm32f1xx_hal_def.h>
 /*============================================================================*/
 /* Forward declarations                                                       */
 /*============================================================================*/
@@ -85,7 +88,8 @@ void io_init(void)
 	PIN_SET(EXP_OEN_GPIO_Port,EXP_OEN_Pin);
 	PIN_SET(EXP_DOUT_GPIO_Port,EXP_DOUT_Pin);
 	PIN_RST(EXP_OEN_GPIO_Port,EXP_OEN_Pin); // Enable Outputs
-	io_update(0);
+	//io_update_old(0);
+	io_update();
 }
 
 void io_do(uint8_t ch, uint8_t val)
@@ -100,7 +104,7 @@ void io_do(uint8_t ch, uint8_t val)
 	}
 }
 
-void io_update(uint8_t count) // Takes about 12.5uS for do only 21uS with do and di
+void io_update_old(uint8_t count) // Takes about 12.5uS for do only 21uS with do and di
 {
 	if(prev_PDI.dout != g_PDI.dout){
 		//dbprintf("New Out received : %08X",g_PDI.dout);
@@ -162,6 +166,23 @@ void io_update(uint8_t count) // Takes about 12.5uS for do only 21uS with do and
 
 	}
 #endif
+}
+
+
+uint8_t io_update(void)
+{
+	HAL_StatusTypeDef status = HAL_ERROR;
+	unsigned char rxData = 0;
+	unsigned char txData = (unsigned char)(g_PDI.dout & 0xFF);
+	status = HAL_SPI_TransmitReceive(&hspi3, &txData, &rxData, 1, 10000);
+	HAL_GPIO_WritePin(EXP_LATCH_GPIO_Port, EXP_LATCH_Pin, 0);
+	HAL_GPIO_WritePin(EXP_LATCH_GPIO_Port, EXP_LATCH_Pin, 1);
+	uint8_t direct_output = 0;
+	for(direct_output=0;direct_output<DIRECT_OUTPUT_COUNT;direct_output++){
+		HAL_GPIO_WritePin(DIRECT_OUTPUT_PORT_LIST[direct_output],DIRECT_OUTPUT_PIN_LIST[direct_output], (g_PDI.dout & (1<<(((direct_output+INDIRECT_OUTPUT_COUNT)%DIRECT_OUTPUT_COUNT)+8))));
+	}
+	g_PDO.din = rxData & 0x000000FF;
+	return status;
 }
 
 

@@ -1,22 +1,23 @@
 /******************************************************************************
  *
- *   Copyright (C) Rota Teknik 2019 All Rights Reserved. Confidential
+ *   Copyright (C) Rota Teknik 2021 All Rights Reserved. Confidential
  *
  **************************************************************************//**
- * @file        ad529x.c
- * @brief       
+ * @file        sh1107_test.h
+ * @brief       SH1107 LCD controller test functions declarations
  *
- * @author      Burak Sahan
- * @date        Feb 18, 2021
+ * @author      Burak Şahan
+ * @date        2021-08-11
  *
- * @ingroup     F1_IOEXP_SPI_SLAVE_TEST
+ * @ingroup     F1_CompactController_IOExp_Application
  * @{
  *****************************************************************************/
-
+#ifndef SRC_SH1107_SH1107_TEST_H_
+#define SRC_SH1107_SH1107_TEST_H_
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "ad529x.h"
+#include <stdint.h>
 /*============================================================================*/
 /* Forward declarations                                                       */
 /*============================================================================*/
@@ -29,65 +30,27 @@
 /* Type definitions                                                           */
 /*============================================================================*/
 
+
 /*============================================================================*/
 /* Global data                                                                */
 /*============================================================================*/
 
 /*============================================================================*/
-/* Module global data                                                         */
+/* Declarations                                                               */
 /*============================================================================*/
+void SH1107_TestLines(uint8_t color);
+void SH1107_TestRectangles (uint8_t color);
+void SH1107_TestFilledRectangles (uint8_t color);
+void SH1107_TestFilledCircles(uint8_t radius, uint16_t color);
+void SH1107_TestCircles(uint8_t radius, uint16_t color);
+void SH1107_TestTriangles(uint8_t color);
+void SH1107_TestBorder();
+void SH1107_TestFonts();
+void SH1107_TestFPS();
+void SH1107_TestAll(int duration);
 
-/*============================================================================*/
-/* Implementation of functions                                                */
-/*============================================================================*/
-HAL_StatusTypeDef SPI_Write(int id, uint8_t *pData, uint16_t Size){
-	HAL_StatusTypeDef status = HAL_ERROR;
-	//HAL_GPIO_TogglePin(SPI3_CS_GPIO_Port, SPI3_CS_Pin);
-	HAL_GPIO_WritePin(SPI3_CS_GPIO_Port, SPI3_CS_Pin,0);
-	status = HAL_SPI_Transmit(&hspi3, pData, Size, 10000);
-	HAL_Delay(20);
-	HAL_GPIO_WritePin(SPI3_CS_GPIO_Port, SPI3_CS_Pin,1);
-	return status;
-}
-
-
-void AD529x_SetRegister(unsigned char command, unsigned short data)
-{
-	unsigned char dataBuf[2] = {0, 0};
-	data &= 0x3FF;
-	command &= 0x0F;
-	dataBuf[0] = (command << 2) + ((data & 0x0300) >> 8);
-	dataBuf[1] = (data & 0x00FF);
-	SPI_Write(AD529x_SLAVE_ID, dataBuf, 2);
-
-}
-
-
-void AD529x_SetResistor(uint32_t res)
-{
-	uint32_t value = ((50000-res)  * 1024 ) / 50000;
-	//dbprintf("*** Write Pot Value : %d (%d ohm)\n\r",value,res);
-	AD529x_SetRegister(AD529x_WRITE_RDAC, value);
-
-}
-
-
-char AD529x_Init()
-{
-	char status = -1;
-
-	//AD527x_RESET_OUT;
-	//AD527x_RESET_HIGH;
-
-	/* setup AD527x */
-	/* Calibration mode set to normal mode. RDAC register write proction closed. */
-	AD529x_SetRegister(AD529x_WRITE_CONTENT,(AD529x_C2 | AD529x_C1));
-
-	return status;
-}
-
-
+#endif /* SRC_SH1107_SH1107_TEST_H_ */
 /**@}*/
 /******************************************************************************/
-/*   Copyright (C) Rota Teknik 2019,  All Rights Reserved. Confidential.      */
+/*   Copyright (C) Rota Teknik 2021,  All Rights Reserved. Confidential.      */
 /******************************************************************************/

@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "dma.h"
+#include "i2c.h"
 #include "spi.h"
 #include "usart.h"
 #include "gpio.h"
@@ -111,8 +112,11 @@ int main(void)
   MX_SPI1_Init();
   MX_SPI2_Init();
   MX_SPI3_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   AD529x_Init();
+  SH1107_Init();
+
 	memset(gSPI_Tx_Buf,0,SPI_TX_BUF_SIZE);
 	//HAL_SPI_TransmitReceive_DMA(&hspi1,gSPI_Tx_Buf, gSPI_Rx_Buf, SPI_TX_BUF_SIZE);
   /* USER CODE END 2 */
@@ -121,14 +125,36 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	dbprintf("Rota SPI Test Application");
 	uint8_t output_count = 0;
-	int resVal = 50000;
+#if 0
 	while(1){
+		io_update();
+		g_PDI.dout = ~g_PDI.dout;
+		HAL_GPIO_TogglePin(INT_LED1_GPIO_Port, INT_LED1_Pin);
+		//HAL_Delay(1000);
+	}
 
-		//resVal += 100;
+	while(1){
+		//set_output(output);
+		io_update_old(output_count++);
+		if(output_count >= (12*8)){
+			output_count = 0;
+			g_PDI.dout = ~g_PDI.dout;
+		}
+		//HAL_Delay(2000);
+		//dbprintf("Output Value: %d",output);
+		HAL_GPIO_TogglePin(INT_LED1_GPIO_Port, INT_LED1_Pin);
+	}
+
+#endif
+	int resVal = 0;
+	while(1){
+		io_update();
+		g_PDI.dout = ~g_PDI.dout;
+		/*resVal += 100;
 		AD529x_SetResistor(resVal);
 		if(resVal > 50000)
-			resVal = 0;
-		HAL_Delay(2000);
+			resVal = 0;*/
+		//HAL_Delay(20);
 	}
 	while (1)
 	{
@@ -137,7 +163,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 		g_PDO.ssi = ssi_read();
 		//dbprintf("SSI: %08X",g_PDO.ssi);
-		io_update(output_count++);
+		io_update_old(output_count++);
 		if(output_count >= (12*8))
 			output_count = 0;
 
