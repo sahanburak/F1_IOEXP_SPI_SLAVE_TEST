@@ -32,9 +32,14 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "SH1107/sh1107.h"
 #include "SH1107/sh1107_fonts.h"
 #include "SH1107/sh1107_test.h"
+#include "LED_DRV_LP55231/led_drv_lp55231.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

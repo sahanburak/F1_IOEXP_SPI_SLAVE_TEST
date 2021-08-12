@@ -12,6 +12,7 @@ RM := rm -rf
 -include Drivers/STM32F1xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/SH1107/subdir.mk
+-include Core/Src/LED_DRV_LP55231/subdir.mk
 -include Core/Src/subdir.mk
 -include subdir.mk
 -include objects.mk

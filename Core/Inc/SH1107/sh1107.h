@@ -12,8 +12,8 @@
  * @ingroup     F1_CompactController_IOExp_Application
  * @{
  *****************************************************************************/
-#ifndef SRC_SH1107_SH1107_H_
-#define SRC_SH1107_SH1107_H_
+#ifndef INC_SH1107_SH1107_H_
+#define INC_SH1107_SH1107_H_
 
 /*============================================================================*/
 /* Includes                                                                   */
@@ -156,7 +156,7 @@ void SH1107_Stopscroll(void);
 void SH1107_InvertDisplay(uint8_t state);
 void SH1107_DrawBitmap(int16_t x, int16_t y, const unsigned char* bitmap, int16_t w, int16_t h, uint16_t color);
 void SH1107_ToggleInvert(void);
-#endif /* SRC_SH1107_SH1107_H_ */
+#endif /* INC_SH1107_SH1107_H_ */
 /**@}*/
 /******************************************************************************/
 /*   Copyright (C) Rota Teknik 2021,  All Rights Reserved. Confidential.      */

@@ -20,6 +20,7 @@ OBJCOPY_BIN :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+Core/Src/LED_DRV_LP55231 \
 Core/Src/SH1107 \
 Core/Src \
 Core/Startup \

@@ -1,3 +1,4 @@
+"./Core/Src/LED_DRV_LP55231/led_drv_lp55231.o"
 "./Core/Src/SH1107/sh1107.o"
 "./Core/Src/SH1107/sh1107_fonts.o"
 "./Core/Src/SH1107/sh1107_test.o"
