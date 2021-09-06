@@ -21,7 +21,8 @@
 #include "spi.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "gpio.h"
+#include "usart.h"
 /* USER CODE END 0 */
 
 SPI_HandleTypeDef hspi1;
@@ -292,6 +293,99 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 }
 
 /* USER CODE BEGIN 1 */
+/*
+ * !\brief			SPI3 Set mode function
+ * 	\param	mode	SPI mode
+ */
+void HAL_SPI3_SetMode(uint8_t mode)
+{
+	HAL_SPI_Abort(&hspi3);
+	hspi3.Instance = SPI3;
+	hspi3.Init.Mode = SPI_MODE_MASTER;
+	hspi3.Init.Direction = SPI_DIRECTION_2LINES;
+	hspi3.Init.DataSize = SPI_DATASIZE_8BIT;
+	hspi3.Init.NSS = SPI_NSS_SOFT;
+	hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+	hspi3.Init.FirstBit = SPI_FIRSTBIT_MSB;
+	hspi3.Init.TIMode = SPI_TIMODE_DISABLE;
+	hspi3.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+	hspi3.Init.CRCPolynomial = 10;
+	switch (mode) {
+	case SPI_MODE_0:
+		hspi3.Init.CLKPolarity = SPI_POLARITY_LOW;
+		hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
+		break;
+	case SPI_MODE_1:
+		hspi3.Init.CLKPolarity = SPI_POLARITY_LOW;
+		hspi3.Init.CLKPhase = SPI_PHASE_2EDGE;
+		break;
+	case SPI_MODE_2:
+		hspi3.Init.CLKPolarity = SPI_POLARITY_HIGH;
+		hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
+		break;
+	case SPI_MODE_3:
+		hspi3.Init.CLKPolarity = SPI_POLARITY_HIGH;
+		hspi3.Init.CLKPhase = SPI_PHASE_2EDGE;
+		break;
+	default:
+		break;
+	}
+
+	if (HAL_SPI_Init(&hspi3) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
+}
+
+/*! \brief			Select SPI3 slave with chip select pin and predefined SPI mode
+ *
+ * \param	slave	SPI slave number
+ */
+void HAL_SPI3_SelectSlave(uint8_t slave)
+{
+	switch(slave)
+	{
+	case IOEXP_SPI3_SLV:
+		HAL_SPI3_SetMode(IOEXP_MODE);
+		break;
+	case DIGIPOT_SPI3_SLV:
+		HAL_SPI3_SetMode(DIGIPOT_MODE);
+		HAL_GPIO_WritePin(LVDT_POT_CS_GPIO_Port, LVDT_POT_CS_Pin, GPIO_PIN_RESET);
+		break;
+	}
+}
+
+
+/*! \brief			Deselect SPI3 slave with chip select pin and predefined SPI mode
+ *
+ * \param	slave	SPI slave number
+ */
+void HAL_SPI3_DeselectSlave(uint8_t slave)
+{
+	uint32_t try = 1000;
+	while(hspi3.State != HAL_SPI_STATE_READY && try > 0){
+		try--;
+	}
+	if(try == 0){
+		dbprintf("Timeout in %s",__func__);
+	}
+	switch(slave)
+	{
+	case IOEXP_SPI3_SLV:
+		break;
+	case DIGIPOT_SPI3_SLV:
+		HAL_GPIO_WritePin(LVDT_POT_CS_GPIO_Port, LVDT_POT_CS_Pin, GPIO_PIN_SET);
+		break;
+	}
+}
+uint8_t HAL_SPI3_ReadWrite(uint8_t slave, uint8_t *txData, uint8_t *rxData,uint16_t Size){
+	HAL_StatusTypeDef status = HAL_ERROR;
+	HAL_SPI3_SelectSlave(slave);
+	status = HAL_SPI_TransmitReceive(&hspi3, txData, rxData, Size, 10000);
+	HAL_SPI3_DeselectSlave(slave);
+	return status;
+}
 
 /* USER CODE END 1 */
 

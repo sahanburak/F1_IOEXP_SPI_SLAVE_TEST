@@ -136,6 +136,7 @@ void SH1107_Fill(SH1107_COLOR_t color);
 void SH1107_UpdateScreen(void);
 char SH1107_WriteChar(char ch, FontDef_t* Font, SH1107_COLOR_t color);
 char SH1107_WriteString(char* str, FontDef_t* Font, SH1107_COLOR_t color);
+char SH1107_WriteLine(char* str, FontDef_t* Font, SH1107_COLOR_t color);
 void SH1107_SetCursor(uint8_t x, uint8_t y);
 void SH1107_DrawPixel(uint8_t x, uint8_t y, SH1107_COLOR_t color);
 void SH1107_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, SH1107_COLOR_t c);

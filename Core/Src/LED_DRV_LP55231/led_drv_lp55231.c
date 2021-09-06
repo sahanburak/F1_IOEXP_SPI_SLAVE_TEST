@@ -73,7 +73,7 @@ void LP55231_WriteData(uint8_t reg_addr, uint8_t* buffer, size_t buff_size) {
  *******************************************************************************/
 uint8_t LP55231_ReadReg(uint8_t reg_addr) {
 	uint8_t reg_data = 0;
-	HAL_I2C_Mem_Read(&LP55231_I2C_PORT, LP55231_I2C_ADDR, reg_addr, 1, &reg_data, 1, HAL_MAX_DELAY);
+	return HAL_I2C_Mem_Read(&LP55231_I2C_PORT, LP55231_I2C_ADDR, reg_addr, 1, &reg_data, 1, HAL_MAX_DELAY);
 }
 
 /***************************************************************************//**

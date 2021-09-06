@@ -42,11 +42,13 @@
 /*============================================================================*/
 HAL_StatusTypeDef SPI_Write(int id, uint8_t *pData, uint16_t Size){
 	HAL_StatusTypeDef status = HAL_ERROR;
-	//HAL_GPIO_TogglePin(SPI3_CS_GPIO_Port, SPI3_CS_Pin);
-	HAL_GPIO_WritePin(SPI3_CS_GPIO_Port, SPI3_CS_Pin,0);
+	uint8_t rData[2];
+	HAL_SPI3_ReadWrite(DIGIPOT_SPI3_SLV,pData,&rData[0],Size);
+	/*
+	AD529x_CS_LOW();
 	status = HAL_SPI_Transmit(&hspi3, pData, Size, 10000);
 	HAL_Delay(20);
-	HAL_GPIO_WritePin(SPI3_CS_GPIO_Port, SPI3_CS_Pin,1);
+	AD529x_CS_HIGH();*/
 	return status;
 }
 
@@ -65,7 +67,10 @@ void AD529x_SetRegister(unsigned char command, unsigned short data)
 
 void AD529x_SetResistor(uint32_t res)
 {
-	uint32_t value = ((50000-res)  * 1024 ) / 50000;
+	uint32_t value = ((MAX_RES_VALUE-res)  * 1024 ) / MAX_RES_VALUE;
+	if(res == 0){
+		value = 1023;
+	}
 	//dbprintf("*** Write Pot Value : %d (%d ohm)\n\r",value,res);
 	AD529x_SetRegister(AD529x_WRITE_RDAC, value);
 

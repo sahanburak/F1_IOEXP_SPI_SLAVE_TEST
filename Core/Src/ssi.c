@@ -58,16 +58,8 @@ uint32_t ssi_read()
 	if(ssiData[0] == 0xFF && ssiData[1] == 0xFF && ssiData[2] == 0xFF && ssiData[3] == 0xFF  && ssiData[4] == 0xFF ){
 		return 0xFFFFFFFF;
 	}else{
-		/*data = (ssiData[1]);
-		data = (data << 8) | (ssiData[2]);
-		data = (data << 8) | (ssiData[3]);
-		data = (data << 8) | (ssiData[4]);*/
 		data = (ssiData[4]) | (ssiData[3] << 8)| (ssiData[2] << 16)| (ssiData[1] << 24);
-		//memcpy(&data,&ssiData[0],4);
 	}
-	//data = count;
-	dbprintf("data: %08X",data);
-	//HAL_Delay(1);
 	return data;
 }
 

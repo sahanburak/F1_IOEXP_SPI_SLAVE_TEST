@@ -198,13 +198,10 @@ uint32_t rt_bus_cmd_bl_write_handler (uint8_t *rxData,uint16_t rxLen,uint8_t *tx
 	uint32_t writeaddress;
 	uint32_t mtype;
 	uint8_t decBuffer[16];
-	uint8_t *iv;
-	uint8_t *data;
 	if (rxLen != 1060)
 		return RT_PROTO_DataError;
 
 	memcpy(&writeaddress,&rxData[0],4);
-
 	/*if (writeaddress < APPLICATION_ADDRESS){
 		dbprintf("Write address error!!! writeaddress : %08X, APPLICATION_ADDRESS:%08X",writeaddress,APPLICATION_ADDRESS);
 		return RT_PROTO_DataError;
@@ -215,8 +212,6 @@ uint32_t rt_bus_cmd_bl_write_handler (uint8_t *rxData,uint16_t rxLen,uint8_t *tx
 	//				      [ Encrypted      ]
 	// 0..3      4..19	  [ 20..23	..    1060 ]
 
-	iv = &rxData[4];
-	data = &rxData[20];
 
 	//AES_CBC_decrypt_buffer(decBuffer,data,16,AES_KEY,iv);
 	if (memcmp("ROTA",&decBuffer[0],4) != 0){
@@ -308,7 +303,7 @@ void SPI_DMA_Reset(){
 void rt_bus_proto_bl_process()
 {
 	uint16_t pSize = 0;
-	uint16_t addr = 0;
+//	uint16_t addr = 0;
 	uint16_t cCRC = 0;
 	uint16_t txSize = 0;
 	uint32_t ret;
@@ -323,7 +318,7 @@ void rt_bus_proto_bl_process()
 			if (pSize <= rxFrameSize - (8 + PRT_FIX_BYTE_NUM + PRT_FIX_BYTE_END_NUM))
 			{
 				//dbprintf("size ok");
-				addr = ((uint16_t)rxBuffer[PRT_AD_MSB_IDX + PRT_FIX_BYTE_NUM] << 8) | (rxBuffer[PRT_AD_LSB_IDX + PRT_FIX_BYTE_NUM]);
+				//addr = ((uint16_t)rxBuffer[PRT_AD_MSB_IDX + PRT_FIX_BYTE_NUM] << 8) | (rxBuffer[PRT_AD_LSB_IDX + PRT_FIX_BYTE_NUM]);
 				cCRC = crc16(&rxBuffer[PRT_AD_MSB_IDX+PRT_FIX_BYTE_NUM], rxFrameSize- (4 + PRT_FIX_BYTE_NUM+PRT_FIX_BYTE_END_NUM));
 				if (memcmp(&rxBuffer[rxFrameSize-(3+PRT_FIX_BYTE_END_NUM)],&cCRC,2)==0)
 				{
@@ -444,7 +439,6 @@ void rt_get_io_values(void){
 	if((prevDMACnt-currentDMACnt) >= (sizeof(tPDI)+1)){
 		//lastRxTime = HAL_GetTick();
 		count++;
-		HAL_GPIO_WritePin(TP1_GPIO_Port, TP1_Pin,0);
 		memcpy(&g_PDI,&gSPI_Rx_Buf[1],sizeof(tPDI));
 		//io_update();
 		/*g_PDO.ssi = ssi_read();
@@ -454,7 +448,6 @@ void rt_get_io_values(void){
 
 		prevDMACnt = currentDMACnt;
 		SPI_DMA_Reset();
-		HAL_GPIO_WritePin(TP1_GPIO_Port, TP1_Pin,1);
 	}
 	/*if ((prevDMACnt-currentDMACnt) != 0)
 	{

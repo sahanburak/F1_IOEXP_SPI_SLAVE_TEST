@@ -32,6 +32,7 @@
 #include "rt_bus_proto.h"
 #include "io.h"
 #include "ad529x.h"
+#include "ssi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,6 +67,10 @@ extern uint8_t gSPI_Rx_Buf[SPI_RX_BUF_SIZE];
 uint8_t g_comms_mode = COMMS_MODE_PDIO;
 extern tPDO g_PDO;
 extern tPDI g_PDI;
+
+int counter =0;
+uint8_t currentStateB;
+uint8_t  previousStateB;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -80,52 +85,53 @@ void SPI_DMA_Reset();
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
-	/* USER CODE BEGIN 1 */
+  /* USER CODE BEGIN 1 */
 
-	/* USER CODE END 1 */
+  /* USER CODE END 1 */
 
-	/* MCU Configuration--------------------------------------------------------*/
+  /* MCU Configuration--------------------------------------------------------*/
 
-	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+
 	HAL_Init();
 
-	/* USER CODE BEGIN Init */
+  /* USER CODE BEGIN Init */
 
-	/* USER CODE END Init */
+  /* USER CODE END Init */
 
-	/* Configure the system clock */
-	SystemClock_Config();
+  /* Configure the system clock */
+  SystemClock_Config();
 
-	/* USER CODE BEGIN SysInit */
+  /* USER CODE BEGIN SysInit */
 
-	/* USER CODE END SysInit */
+  /* USER CODE END SysInit */
 
-	/* Initialize all configured peripherals */
-	MX_GPIO_Init();
-	MX_DMA_Init();
-	MX_USART1_UART_Init();
-	MX_SPI1_Init();
-	MX_SPI2_Init();
-	MX_SPI3_Init();
-	MX_I2C1_Init();
-	/* USER CODE BEGIN 2 */
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_DMA_Init();
+  MX_USART1_UART_Init();
+  MX_SPI1_Init();
+  MX_SPI2_Init();
+  MX_SPI3_Init();
+  MX_I2C1_Init();
+  /* USER CODE BEGIN 2 */
 	AD529x_Init();
 	SH1107_Init();
 	LP55231_Init();
 	memset(gSPI_Tx_Buf,0,SPI_TX_BUF_SIZE);
 	//HAL_SPI_TransmitReceive_DMA(&hspi1,gSPI_Tx_Buf, gSPI_Rx_Buf, SPI_TX_BUF_SIZE);
-	/* USER CODE END 2 */
+  /* USER CODE END 2 */
 
-	/* Infinite loop */
-	/* USER CODE BEGIN WHILE */
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
 	dbprintf("Rota SPI Test Application");
-	uint8_t output_count = 0;
 #if 0
+	uint8_t output_count = 0;
 	while(1){
 		io_update();
 		g_PDI.dout = ~g_PDI.dout;
@@ -146,23 +152,35 @@ int main(void)
 	}
 
 #endif
-	uint8_t current = 0, previous = 0;
-	uint32_t next = HAL_GetTick()+1000;
+
+#if 0
+	uint32_t time = 200;
+	/* Led Driver Test */
 	while(1){
-#if 1
 		for(int i =1 ;i<4;i++){
-			LP55231_SetColor(i,0x05FF0000);
-			HAL_Delay(1000);
+			LP55231_SetColor(i,0x50FF0000);
+			HAL_Delay(time);
 		}
 		for(int i =1 ;i<4;i++){
-			LP55231_SetColor(i,0x0500FF00);
-			HAL_Delay(1000);
+			LP55231_SetColor(i,0x5000FF00);
+			HAL_Delay(time);
 		}
 
 		for(int i =1 ;i<4;i++){
-			LP55231_SetColor(i,0x050000FF);
-			HAL_Delay(1000);
+			LP55231_SetColor(i,0x500000FF);
+			HAL_Delay(time);
 		}
+
+		for(int i =1 ;i<4;i++){
+			LP55231_SetColor(i,0x5033FFFF);
+			HAL_Delay(time);
+		}
+
+		for(int i =1 ;i<4;i++){
+			LP55231_SetColor(i,0x50FF3399);
+			HAL_Delay(time);
+		}
+		SH1107_WriteLine("Rota Teknik  Rota Teknik  Rota Teknik   Rota Teknik", &Font_11x18, White);
 		/*if(HAL_GetTick() >= next)
 		{
 			next += 1000;
@@ -180,79 +198,116 @@ int main(void)
 			}
 		}*/
 
+
+	}
 #endif
-	}
-	int resVal = 0;
+
+#if 0
+	/*Encoder Test*/
+	previousStateB = HAL_GPIO_ReadPin(Encoder_Phase_B_GPIO_Port, Encoder_Phase_B_Pin);
+	//SH1107_WriteString("Deneme12345Deneme12345Deneme12345Deneme12345Deneme12345Deneme12345Deneme12345Deneme12345Deneme12345Deneme12345Deneme12345Deneme12345", &Font_11x18, White);
+	//SH1107_WriteString("Deneme1234Deneme1234Deneme1234Deneme1234Deneme1234", &Font_11x18, White);
+	/*SH1107_WriteLine("Deneme12345", &Font_11x18, White);
+	SH1107_WriteLine("DenemeDeneme", &Font_11x18, White);*/
 	while(1){
-		io_update();
-		g_PDI.dout = ~g_PDI.dout;
-		/*resVal += 100;
-		AD529x_SetResistor(resVal);
-		if(resVal > 50000)
-			resVal = 0;*/
-		//HAL_Delay(20);
+		currentStateB = HAL_GPIO_ReadPin(Encoder_Phase_B_GPIO_Port, Encoder_Phase_B_Pin);
+		if(currentStateB != previousStateB){
+			if(HAL_GPIO_ReadPin(Encoder_Phase_A_GPIO_Port, Encoder_Phase_A_Pin) != currentStateB){
+				counter--;
+				dbprintf("Rotate CCW\t value: %d",counter);
+			}else{
+				counter++;
+				dbprintf("Rotate CW\t value: %d",counter);
+			}
+		}
+		previousStateB = currentStateB;
 	}
+#endif
+#if 0
+	/* Digital pot test */
+	int resVal = 0;
+	int tempOut = 0;
+	while(1){
+		/*0io_update();
+		if(tempOut != g_PDI.dout){
+			dbprintf("Output : 0x%08X", g_PDI.dout);
+			tempOut = g_PDI.dout;
+		}
+		g_PDI.dout = ~g_PDI.dout;
+		HAL_Delay(1000);*/
+		//resVal += 100;
+		resVal =4000;
+		AD529x_SetResistor(resVal);
+		if(resVal > MAX_RES_VALUE)
+			resVal = 0;
+		HAL_Delay(20);
+	}
+#endif
+#if 1
+	float resVal = 0.0f;
 	while (1)
 	{
-		/* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-		/* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
 		g_PDO.ssi = ssi_read();
-		//dbprintf("SSI: %08X",g_PDO.ssi);
-		io_update_old(output_count++);
-		if(output_count >= (12*8))
-			output_count = 0;
-
+		memcpy(&resVal, &g_PDI.resistor,sizeof(float));
+		resVal *= 1000;
+		if(resVal > MAX_RES_VALUE)
+			resVal = MAX_RES_VALUE;
+		AD529x_SetResistor(resVal);
 		if(g_comms_mode == COMMS_MODE_PDIO){
 			rt_get_io_values();
 		}/*else{
 			//rt_bus_proto_bl_dt();
 		}*/
 	}
-	/* USER CODE END 3 */
+#endif
+  /* USER CODE END 3 */
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
-	RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-	RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-	/** Initializes the CPU, AHB and APB busses clocks
-	 */
-	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-	RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-	RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
-	RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-	RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
-	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-	{
-		Error_Handler();
-	}
-	/** Initializes the CPU, AHB and APB busses clocks
-	 */
-	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-			|RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  /** Initializes the CPU, AHB and APB busses clocks
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Initializes the CPU, AHB and APB busses clocks
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
-	{
-		Error_Handler();
-	}
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
 }
 
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	if(GPIO_Pin == STM_MODE_SEL_Pin){
+	switch(GPIO_Pin){
+	case STM_MODE_SEL_Pin:
 		if(HAL_GPIO_ReadPin(STM_MODE_SEL_GPIO_Port, STM_MODE_SEL_Pin)){
 			g_comms_mode = COMMS_MODE_PDIO;
 			dbprintf("PDIO Mode");
@@ -260,6 +315,17 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			g_comms_mode = COMMS_MODE_CONF;
 			dbprintf("CONF Mode");
 		}
+		break;
+
+	case EXT_BTN1_Pin:
+		dbprintf("BTN1 Pressed.");
+		break;
+	case EXT_BTN2_Pin:
+		dbprintf("BTN2 Pressed.");
+		break;
+	case Encoder_SW_Pin:
+		dbprintf("Encoder Button Pressed.");
+		break;
 	}
 }
 
@@ -271,31 +337,31 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 /* USER CODE END 4 */
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
-	/* USER CODE BEGIN Error_Handler_Debug */
+  /* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
 	dbprintf("%s",__func__);
-	/* USER CODE END Error_Handler_Debug */
+  /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT
 /**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
-	/* USER CODE BEGIN 6 */
+  /* USER CODE BEGIN 6 */
 	/* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-	/* USER CODE END 6 */
+  /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
 

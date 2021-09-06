@@ -21,6 +21,7 @@
 /*============================================================================*/
 /* Forward declarations                                                       */
 /*============================================================================*/
+#if 0
 /*Connected to IOExp Outputs*/
 #define HAL_GPIO_DO_UNUSED4		(0)
 #define HAL_GPIO_DO_UNUSED3		(1)
@@ -82,7 +83,45 @@
 #define HAL_GPIO_DI_Reserved12		(21)
 #define HAL_GPIO_DI_Reserved13		(22)
 #define HAL_GPIO_DI_Reserved14		(23)
+#endif
 
+/*Connected to IOExp Outputs*/
+#define HAL_GPIO_DO_AUX_DO_CH1			(0)		/* Auxiliary Digital Output 1 */
+#define HAL_GPIO_DO_AUX_DO_CH2			(1)		/* Auxiliary Digital Output 2 */
+#define HAL_GPIO_DO_CH6					(2)		/* Channel 6 Digital Output */
+#define HAL_GPIO_DO_CH5					(3)		/* Channel 6 Digital Output */
+#define HAL_GPIO_DO_CH4					(4)		/* Channel 6 Digital Output */
+#define HAL_GPIO_DO_CH3					(5)		/* Channel 6 Digital Output */
+#define HAL_GPIO_DO_CH2					(6)		/* Channel 6 Digital Output */
+#define HAL_GPIO_DO_CH1					(7)		/* Channel 6 Digital Output */
+/*Connected to IOExp Outputs*/
+#define HAL_GPIO_DO_20MA_SEL			(8)		/* Analog current output mode 0-20mA selection  */
+#define HAL_GPIO_DO_40MA_SEL			(9)		/* Analog current output mode 0-40mA selection  */
+#define HAL_GPIO_DO_100MA_SEL			(10)	/* Analog current output mode 0-100mA selection  */
+#define HAL_GPIO_DO_LCD_RES				(11)	/* LCD Enable */
+#define HAL_GPIO_DO_AN1_CUR_SEL			(12)	/* Analog current input 1 enable pin bit */
+#define HAL_GPIO_DO_AN3_CUR_SEL			(13)	/* Analog current input 3 enable pin bit */
+#define HAL_GPIO_DO_AN5_CUR_SEL			(14)	/* Analog current input 5 enable pin bit */
+
+/*Connected to IOExp Inputs*/
+#define HAL_GPIO_DI_Reserved1			(0)		/* Reserved Input bit for bit alignment */
+#define HAL_GPIO_DI_Address_5			(1)		/* Backplane Slot Address 5 */
+#define HAL_GPIO_DI_Address_4			(2)		/* Backplane Slot Address 4 */
+#define HAL_GPIO_DI_Address_3			(3)		/* Backplane Slot Address 3 */
+#define HAL_GPIO_DI_Address_2			(4)		/* Backplane Slot Address 2 */
+#define HAL_GPIO_DI_Address_1			(5)		/* Backplane Slot Address 1 */
+#define HAL_GPIO_DI_Address_0			(6)		/* Internal Button 3 input pin for testing. */
+#define HAL_GPIO_DI_Reserved2			(7)		/* External digital input 1 signal */
+
+#define HAL_GPIO_DI_CH6					(8)		/* Channel 6 Digital Input */
+#define HAL_GPIO_DI_CH5					(9)		/* Channel 5 Digital Input */
+#define HAL_GPIO_DI_CH4					(10)	/* Channel 4 Digital Input */
+#define HAL_GPIO_DI_CH3					(11)	/* Channel 3 Digital Input */
+#define HAL_GPIO_DI_CH2					(12)	/* Channel 2 Digital Input */
+#define HAL_GPIO_DI_CH1					(13)	/* Channel 1 Digital Input */
+
+#define HAL_GPIO_DI_EXT_BTN_1			(14)	/* Front panel Button 1 drive */
+#define HAL_GPIO_DI_EXT_BTN_2			(15)	/* Front panel Button 1 drive */
 
 #define ERR_LED1_On()			HAL_GPIO_WritePin(INT_LED1_GPIO_Port, INT_LED1_Pin, GPIO_PIN_RESET)
 #define ERR_LED1_Off()			HAL_GPIO_WritePin(INT_LED1_GPIO_Port, INT_LED1_Pin, GPIO_PIN_SET)
@@ -102,7 +141,7 @@
 typedef struct
 {
 	uint32_t dout;
-	uint32_t reserved;
+	uint32_t resistor;
 }tPDI;
 
 typedef struct
@@ -120,7 +159,6 @@ typedef struct
 /*============================================================================*/
 
 void io_init(void);
-void io_update_old(uint8_t count);
 void io_do(uint8_t ch, uint8_t val);
 uint8_t io_update(void);
 

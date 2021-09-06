@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <SH1107/sh1107.h>
+#include "usart.h"
 /*============================================================================*/
 /* Forward declarations                                                       */
 /*============================================================================*/
@@ -48,9 +49,9 @@ static SH1107_t SH1107;
 /*============================================================================*/
 
 /***************************************************************************//**
-* @brief Reset SH1107 with reset pin.
-*
-*******************************************************************************/
+ * @brief Reset SH1107 with reset pin.
+ *
+ *******************************************************************************/
 void SH1107_Reset(void) {
 	SH1107_Off();
 	HAL_Delay(200);
@@ -58,48 +59,48 @@ void SH1107_Reset(void) {
 }
 
 /***************************************************************************//**
-* @brief SH1107 on with reset pin.
-*
-*******************************************************************************/
+ * @brief SH1107 on with reset pin.
+ *
+ *******************************************************************************/
 void SH1107_On(void) {
 	HAL_GPIO_WritePin(LCD_RES_GPIO_Port, LCD_RES_Pin, GPIO_PIN_SET);
 }
 
 /***************************************************************************//**
-* @brief SH1107 off with reset pin.
-*
-*******************************************************************************/
+ * @brief SH1107 off with reset pin.
+ *
+ *******************************************************************************/
 void SH1107_Off(void) {
 	HAL_GPIO_WritePin(LCD_RES_GPIO_Port, LCD_RES_Pin, GPIO_PIN_RESET);
 }
 
 /***************************************************************************//**
-* @brief  			Send a byte to the command register
-*
-* @param 	byte	data in byte format for writing
-*
-*******************************************************************************/
+ * @brief  			Send a byte to the command register
+ *
+ * @param 	byte	data in byte format for writing
+ *
+ *******************************************************************************/
 void SH1107_WriteCommand(uint8_t byte) {
 	HAL_I2C_Mem_Write(&SH1107_I2C_PORT, SH1107_I2C_ADDR, 0x00, 1, &byte, 1, HAL_MAX_DELAY);
 }
 
 /***************************************************************************//**
-* @brief  				Send data to display
-*
-* @param 	buffer		data in pointer format for writing
-* @param 	buff_size	data size in size_t format for writing
-*
-*******************************************************************************/
+ * @brief  				Send data to display
+ *
+ * @param 	buffer		data in pointer format for writing
+ * @param 	buff_size	data size in size_t format for writing
+ *
+ *******************************************************************************/
 void SH1107_WriteData(uint8_t* buffer, size_t buff_size) {
 	HAL_I2C_Mem_Write(&SH1107_I2C_PORT, SH1107_I2C_ADDR, 0x40, 1, buffer, buff_size, HAL_MAX_DELAY);
 }
 
 /***************************************************************************//**
-* @brief  				Changed the Page address for pixel drive
-*
-* @param 	add			page address in unsigned char format between 0~SH1107_PAGE
-*
-*******************************************************************************/
+ * @brief  				Changed the Page address for pixel drive
+ *
+ * @param 	add			page address in unsigned char format between 0~SH1107_PAGE
+ *
+ *******************************************************************************/
 void SH1107_ChangePageAddress(unsigned char add)
 {
 	add=0xb0|add;
@@ -108,11 +109,11 @@ void SH1107_ChangePageAddress(unsigned char add)
 }
 
 /***************************************************************************//**
-* @brief  				Changed the Column address for pixel drive
-*
-* @param 	add			Column address in unsigned char format between 0~SH1107_HEIGHT
-*
-*******************************************************************************/
+ * @brief  				Changed the Column address for pixel drive
+ *
+ * @param 	add			Column address in unsigned char format between 0~SH1107_HEIGHT
+ *
+ *******************************************************************************/
 void SH1107_ChangeColumnAddress(unsigned char add)
 {
 	uint8_t byte =(0x10|(add>>4));
@@ -125,9 +126,9 @@ void SH1107_ChangeColumnAddress(unsigned char add)
 }
 
 /***************************************************************************//**
-* @brief  				Initialize the oled screen
-*
-*******************************************************************************/
+ * @brief  				Initialize the oled screen
+ *
+ *******************************************************************************/
 void SH1107_Init(void) {
 
 	/* Reset OLED */
@@ -146,9 +147,9 @@ void SH1107_Init(void) {
 
 	SH1107_WriteCommand(SH1107_ADDR_MODE); 				/* Set Memory Addressing Mode */
 	SH1107_WriteCommand(0x00); 							/* 00b,Horizontal Addressing Mode;
-														 * 01b,Vertical Addressing Mode;
-														 * 10b,Page Addressing Mode (RESET);
-														 * 11b,Invalid */
+	 * 01b,Vertical Addressing Mode;
+	 * 10b,Page Addressing Mode (RESET);
+	 * 11b,Invalid */
 
 	SH1107_WriteCommand(SH1107_SET_MULTIPLEX_RATIO); 	/* set multiplex ratio(1 to 64) - CHECK */
 	SH1107_WriteCommand(0x3F);
@@ -169,7 +170,7 @@ void SH1107_Init(void) {
 #endif
 
 	SH1107_WriteCommand(SH1107_RAM_ON); 				/* 0xa4,Output follows RAM content;
-														 * 0xa5,Output ignores RAM content */
+	 * 0xa5,Output ignores RAM content */
 
 #ifdef SH1107_MIRROR_HORIZ
 	SH1107_WriteCommand(SH1107_SET_REMAP_L_TO_R); 		/* Mirror horizontally */
@@ -209,20 +210,20 @@ void SH1107_Init(void) {
 }
 
 /***************************************************************************//**
-* @brief  			Fill the whole screen with the given color
-*
-* @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
-*
-*******************************************************************************/
+ * @brief  			Fill the whole screen with the given color
+ *
+ * @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
+ *
+ *******************************************************************************/
 void SH1107_Fill(SH1107_COLOR_t color) {
 	/* Set memory */
 	memset(SH1107_Buffer, (color == Black) ? 0x00 : 0xFF, sizeof(SH1107_Buffer));
 }
 
 /***************************************************************************//**
-* @brief  			Write the screen buffer with changed to the screen
-*
-*******************************************************************************/
+ * @brief  			Write the screen buffer with changed to the screen
+ *
+ *******************************************************************************/
 void SH1107_UpdateScreen(void) {
 
 	unsigned char i;
@@ -236,13 +237,13 @@ void SH1107_UpdateScreen(void) {
 }
 
 /***************************************************************************//**
-* @brief  			Draw 1 char to the screen buffer
-*
-* @param	ch		Character in char format for writing
-* @param	Font	Font in FontDef_t type for font size. Font is enumeration with FontDef_t. See sh1107_fonts.h for more details about fonts.
-* @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
-*
-*******************************************************************************/
+ * @brief  			Draw 1 char to the screen buffer
+ *
+ * @param	ch		Character in char format for writing
+ * @param	Font	Font in FontDef_t type for font size. Font is enumeration with FontDef_t. See sh1107_fonts.h for more details about fonts.
+ * @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
+ *
+ *******************************************************************************/
 char SH1107_WriteChar(char ch, FontDef_t* Font, SH1107_COLOR_t color) {
 	uint32_t i, b, j;
 
@@ -251,12 +252,18 @@ char SH1107_WriteChar(char ch, FontDef_t* Font, SH1107_COLOR_t color) {
 		return 0;
 
 	/* Check remaining space on current line */
-	if (SH1107_WIDTH < (SH1107.CurrentX + Font->FontWidth) ||
-			SH1107_HEIGHT < (SH1107.CurrentY + Font->FontHeight))
+#if 0
+	if (/*SH1107_WIDTH < (SH1107.CurrentX + Font->FontWidth) || */SH1107_HEIGHT < (SH1107.CurrentY + Font->FontHeight))
 	{
 		// Not enough space on current line
 		return 0;
 	}
+#endif
+	/*if(SH1107_WIDTH < (SH1107.CurrentX + Font->FontWidth)){
+		//SH1107.CurrentX = 0;
+		//SH1107.CurrentY +=Font->FontHeight;
+		return ch;
+	}*/
 
 	/* Use the font to write */
 	for(i = 0; i < Font->FontHeight; i++) {
@@ -278,49 +285,129 @@ char SH1107_WriteChar(char ch, FontDef_t* Font, SH1107_COLOR_t color) {
 }
 
 /***************************************************************************//**
-* @brief  			Write full string to screenbuffer
-*
-* @param	str		str in char pointer format for writing
-* @param	Font	Font in FontDef_t type for font size. Font is enumeration with FontDef_t. See sh1107_fonts.h for more details about fonts.
-* @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
-*
-*******************************************************************************/
+ * @brief  			Write full string to screenbuffer
+ *
+ * @param	str		str in char pointer format for writing
+ * @param	Font	Font in FontDef_t type for font size. Font is enumeration with FontDef_t. See sh1107_fonts.h for more details about fonts.
+ * @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
+ *
+ *******************************************************************************/
 char SH1107_WriteString(char* str, FontDef_t* Font, SH1107_COLOR_t color) {
+
+	char *temp_str;
+	int str_len = strlen(str);
+	int line_count = (str_len*Font->FontWidth)/SH1107_WIDTH;
+	line_count = ((str_len*Font->FontWidth)%SH1107_WIDTH == 0) ? (line_count+1): (line_count+2);
+	int max_line_char_num = SH1107_WIDTH /Font->FontWidth;
+	int max_line_num = (SH1107_HEIGHT /Font->FontHeight )+1;
+
+	if(line_count > max_line_num){
+		dbprintf("Scrolling enable");
+		temp_str = malloc(sizeof(char)*max_line_char_num*max_line_num);
+		memcpy(temp_str,str,sizeof(char)*max_line_char_num*max_line_num);
+		temp_str[max_line_char_num*max_line_num] = '\0';
+		line_count = max_line_num;
+		//dbprintf("Base Str: %s New Str: %s",str,temp_str);
+	}else{
+		temp_str = malloc(strlen(str)*sizeof(char));
+		temp_str = str;
+		//dbprintf("Base Str: %s New Str: %s",str,temp_str);
+	}
+
+	int ch_ind = 0;
+	while(line_count){
+		if(line_count){
+			dbprintf("Line writing...line_count: %d",line_count);
+			char *line_str = malloc(max_line_char_num);
+			memcpy(line_str,&temp_str[ch_ind],max_line_char_num);
+			line_str[max_line_char_num] = '\0';
+			dbprintf("line_str: %s",line_str);
+			SH1107_WriteLine(line_str,Font,color);
+			ch_ind += max_line_char_num;
+		}else{
+			dbprintf("Last Line writing...line_count: %d",line_count);
+			char *line_str = malloc(str_len-ch_ind);
+			memcpy(line_str,&temp_str[str_len-ch_ind],str_len-ch_ind);
+			line_str[str_len-ch_ind] = '\0';
+			dbprintf("line_str: %s",line_str);
+			ch_ind = str_len;
+			SH1107_WriteLine(line_str,Font,color);
+		}
+		line_count--;
+	}
+#if 0
 	/* Write until null-byte */
-	while (*str) {
-		if (SH1107_WriteChar(*str, Font, color) != *str) {
+	while (*temp_str) {
+		if (SH1107_WriteChar(*temp_str, Font, color) != *temp_str) {
 			/* Char could not be written */
-			return *str;
+			return *temp_str;
 		}
 
 		/* Next char */
-		str++;
+		temp_str++;
 	}
 	SH1107_UpdateScreen();
+#endif
+	/* Everything ok */
+	return *temp_str;
+}
+
+
+/***************************************************************************//**
+ * @brief  			Write string to last line
+ *
+ * @param	str		str in char pointer format for line
+ * @param	Font	Font in FontDef_t type for font size. Font is enumeration with FontDef_t. See sh1107_fonts.h for more details about fonts.
+ * @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
+ *
+ *******************************************************************************/
+char SH1107_WriteLine(char* str, FontDef_t* Font, SH1107_COLOR_t color) {
+	int str_len = strlen(str);
+	char *temp_str = malloc(str_len);
+	int max_line_char_num = SH1107_WIDTH /Font->FontWidth;
+	int loop_count = (str_len - max_line_char_num);
+	int shift_char =0;
+	while(loop_count-->0){
+		/* Write until null-byte */
+		SH1107.CurrentX = 0;
+		memcpy(temp_str,&str[shift_char++],max_line_char_num+1);
+		while (*temp_str) {
+			if (SH1107_WriteChar(*temp_str, Font, color) != *temp_str) {
+				/* Char could not be written */
+				break;//return *str;
+			}
+
+			/* Next char */
+			temp_str++;
+		}
+		SH1107_UpdateScreen();
+		HAL_Delay(300);
+	}
+
+	SH1107.CurrentY +=Font->FontHeight;
 	/* Everything ok */
 	return *str;
 }
-
 /***************************************************************************//**
-* @brief  			Position the cursor
-*
-* @param	x		x in uint8_t format for row coordinate
-* @param	y		y in uint8_t format for column coordinate
-*
-*******************************************************************************/
+ * @brief  			Position the cursor
+ *
+ * @param	x		x in uint8_t format for row coordinate
+ * @param	y		y in uint8_t format for column coordinate
+ *
+ *******************************************************************************/
 void SH1107_SetCursor(uint8_t x, uint8_t y) {
 	SH1107.CurrentX = x;
 	SH1107.CurrentY = y;
 }
 
 /***************************************************************************//**
-* @brief  			Draw one pixel in the screen buffer
-*
-* @param	x		x in uint8_t format for row coordinate
-* @param	y		y in uint8_t format for column coordinate
-* @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
-*
-*******************************************************************************/
+ * @brief  			Draw one pixel in the screen buffer
+ *
+ * @param	x		x in uint8_t format for row coordinate
+ * @param	y		y in uint8_t format for column coordinate
+ * @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
+ *
+ *******************************************************************************/
 void SH1107_DrawPixel(uint8_t x, uint8_t y, SH1107_COLOR_t color) {
 	if(x >= SH1107_WIDTH || y >= SH1107_HEIGHT) {
 		/* Don't write outside the buffer */
@@ -341,15 +428,15 @@ void SH1107_DrawPixel(uint8_t x, uint8_t y, SH1107_COLOR_t color) {
 }
 
 /***************************************************************************//**
-* @brief  			Draw line in the screen buffer
-*
-* @param	x0		x0 in uint16_t format for start of row coordinate
-* @param	x1		x1 in uint16_t format for end of row coordinate
-* @param	y0		y0 in uint16_t format for start of column coordinate
-* @param	y1		y1 in uint16_t format for end of column coordinate
-* @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
-*
-*******************************************************************************/
+ * @brief  			Draw line in the screen buffer
+ *
+ * @param	x0		x0 in uint16_t format for start of row coordinate
+ * @param	x1		x1 in uint16_t format for end of row coordinate
+ * @param	y0		y0 in uint16_t format for start of column coordinate
+ * @param	y1		y1 in uint16_t format for end of column coordinate
+ * @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
+ *
+ *******************************************************************************/
 void SH1107_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, SH1107_COLOR_t c) {
 	int16_t dx, dy, sx, sy, err, e2, i, tmp;
 
@@ -435,15 +522,15 @@ void SH1107_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, SH1107_
 }
 
 /***************************************************************************//**
-* @brief  			Draw Rectangle in the screen buffer
-*
-* @param	x		x in uint16_t format for start of row coordinate
-* @param	y		y in uint16_t format for start of column coordinate
-* @param	w		w in uint16_t format for rectangle width
-* @param	h		h in uint16_t format for rectangle height
-* @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
-*
-*******************************************************************************/
+ * @brief  			Draw Rectangle in the screen buffer
+ *
+ * @param	x		x in uint16_t format for start of row coordinate
+ * @param	y		y in uint16_t format for start of column coordinate
+ * @param	w		w in uint16_t format for rectangle width
+ * @param	h		h in uint16_t format for rectangle height
+ * @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
+ *
+ *******************************************************************************/
 void SH1107_DrawRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, SH1107_COLOR_t c) {
 	/* Check input parameters */
 	if (
@@ -470,15 +557,15 @@ void SH1107_DrawRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, SH1107
 }
 
 /***************************************************************************//**
-* @brief  			Draw Filled Rectangle in the screen buffer
-*
-* @param	x		x in uint16_t format for start of row coordinate
-* @param	y		y in uint16_t format for start of column coordinate
-* @param	w		w in uint16_t format for rectangle width
-* @param	h		h in uint16_t format for rectangle height
-* @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
-*
-*******************************************************************************/
+ * @brief  			Draw Filled Rectangle in the screen buffer
+ *
+ * @param	x		x in uint16_t format for start of row coordinate
+ * @param	y		y in uint16_t format for start of column coordinate
+ * @param	w		w in uint16_t format for rectangle width
+ * @param	h		h in uint16_t format for rectangle height
+ * @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
+ *
+ *******************************************************************************/
 void SH1107_DrawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, SH1107_COLOR_t c) {
 	uint8_t i;
 
@@ -507,17 +594,17 @@ void SH1107_DrawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, 
 }
 
 /***************************************************************************//**
-* @brief  			Draw Triangle in the screen buffer
-*
-* @param	x1		x1 in uint16_t format for first corner row coordinate
-* @param	y1		y1 in uint16_t format for first corner column coordinate
-* @param	x2		x2 in uint16_t format for second corner row coordinate
-* @param	y2		y2 in uint16_t format for second corner column coordinate
-* @param	x3		x3 in uint16_t format for third corner row coordinate
-* @param	y3		y3 in uint16_t format for third corner column coordinate
-* @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
-*
-*******************************************************************************/
+ * @brief  			Draw Triangle in the screen buffer
+ *
+ * @param	x1		x1 in uint16_t format for first corner row coordinate
+ * @param	y1		y1 in uint16_t format for first corner column coordinate
+ * @param	x2		x2 in uint16_t format for second corner row coordinate
+ * @param	y2		y2 in uint16_t format for second corner column coordinate
+ * @param	x3		x3 in uint16_t format for third corner row coordinate
+ * @param	y3		y3 in uint16_t format for third corner column coordinate
+ * @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
+ *
+ *******************************************************************************/
 void SH1107_DrawTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, SH1107_COLOR_t color) {
 	/* Draw lines */
 	SH1107_DrawLine(x1, y1, x2, y2, color);
@@ -526,17 +613,17 @@ void SH1107_DrawTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uin
 }
 
 /***************************************************************************//**
-* @brief  			Draw Filled Triangle in the screen buffer
-*
-* @param	x1		x1 in uint16_t format for first corner row coordinate
-* @param	y1		y1 in uint16_t format for first corner column coordinate
-* @param	x2		x2 in uint16_t format for second corner row coordinate
-* @param	y2		y2 in uint16_t format for second corner column coordinate
-* @param	x3		x3 in uint16_t format for third corner row coordinate
-* @param	y3		y3 in uint16_t format for third corner column coordinate
-* @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
-*
-*******************************************************************************/
+ * @brief  			Draw Filled Triangle in the screen buffer
+ *
+ * @param	x1		x1 in uint16_t format for first corner row coordinate
+ * @param	y1		y1 in uint16_t format for first corner column coordinate
+ * @param	x2		x2 in uint16_t format for second corner row coordinate
+ * @param	y2		y2 in uint16_t format for second corner column coordinate
+ * @param	x3		x3 in uint16_t format for third corner row coordinate
+ * @param	y3		y3 in uint16_t format for third corner column coordinate
+ * @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
+ *
+ *******************************************************************************/
 void SH1107_DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, SH1107_COLOR_t color) {
 	int16_t deltax = 0, deltay = 0, x = 0, y = 0, xinc1 = 0, xinc2 = 0,
 			yinc1 = 0, yinc2 = 0, den = 0, num = 0, numadd = 0, numpixels = 0,
@@ -594,14 +681,14 @@ void SH1107_DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y
 }
 
 /***************************************************************************//**
-* @brief  			Draw Circle in the screen buffer
-*
-* @param	x0		x0 in int16_t format for start position of row coordinate
-* @param	y0		y0 in int16_t format for start position of column coordinate
-* @param	r		r in int16_t format for circle radius
-* @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
-*
-*******************************************************************************/
+ * @brief  			Draw Circle in the screen buffer
+ *
+ * @param	x0		x0 in int16_t format for start position of row coordinate
+ * @param	y0		y0 in int16_t format for start position of column coordinate
+ * @param	r		r in int16_t format for circle radius
+ * @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
+ *
+ *******************************************************************************/
 void SH1107_DrawCircle(int16_t x0, int16_t y0, int16_t r, SH1107_COLOR_t c) {
 	int16_t f = 1 - r;
 	int16_t ddF_x = 1;
@@ -637,14 +724,14 @@ void SH1107_DrawCircle(int16_t x0, int16_t y0, int16_t r, SH1107_COLOR_t c) {
 }
 
 /***************************************************************************//**
-* @brief  			Draw Filled Circle in the screen buffer
-*
-* @param	x0		x0 in int16_t format for start position of row coordinate
-* @param	y0		y0 in int16_t format for start position of column coordinate
-* @param	r		r in int16_t format for circle radius
-* @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
-*
-*******************************************************************************/
+ * @brief  			Draw Filled Circle in the screen buffer
+ *
+ * @param	x0		x0 in int16_t format for start position of row coordinate
+ * @param	y0		y0 in int16_t format for start position of column coordinate
+ * @param	r		r in int16_t format for circle radius
+ * @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
+ *
+ *******************************************************************************/
 void SH1107_DrawFilledCircle(int16_t x0, int16_t y0, int16_t r, SH1107_COLOR_t c) {
 	int16_t f = 1 - r;
 	int16_t ddF_x = 1;
@@ -677,9 +764,9 @@ void SH1107_DrawFilledCircle(int16_t x0, int16_t y0, int16_t r, SH1107_COLOR_t c
 }
 
 /***************************************************************************//**
-* @brief  			Clear all screen
-*
-*******************************************************************************/
+ * @brief  			Clear all screen
+ *
+ *******************************************************************************/
 void SH1107_Clear (void)
 {
 	SH1107_Fill (0);
@@ -687,9 +774,9 @@ void SH1107_Clear (void)
 }
 
 /***************************************************************************//**
-* @brief  			SH1107 screen controller on.
-*
-*******************************************************************************/
+ * @brief  			SH1107 screen controller on.
+ *
+ *******************************************************************************/
 void SH1107_ON(void) {
 	SH1107_WriteCommand(0x8D);
 	SH1107_WriteCommand(0x14);
@@ -697,9 +784,9 @@ void SH1107_ON(void) {
 }
 
 /***************************************************************************//**
-* @brief  			SH1107 screen controller off.
-*
-*******************************************************************************/
+ * @brief  			SH1107 screen controller off.
+ *
+ *******************************************************************************/
 void SH1107_OFF(void) {
 	SH1107_WriteCommand(0x8D);
 	SH1107_WriteCommand(0x10);
@@ -707,12 +794,12 @@ void SH1107_OFF(void) {
 }
 
 /***************************************************************************//**
-* @brief  				Screen scroll to right.
-*
-* @param	start_row	start_row in uint8_t format. Starting row coordinate for scrolling
-* @param	end_row		end_row in uint8_t format. Ending row coordinate for scrolling
-*
-*******************************************************************************/
+ * @brief  				Screen scroll to right.
+ *
+ * @param	start_row	start_row in uint8_t format. Starting row coordinate for scrolling
+ * @param	end_row		end_row in uint8_t format. Ending row coordinate for scrolling
+ *
+ *******************************************************************************/
 void SH1107_ScrollRight(uint8_t start_row, uint8_t end_row)
 {
 	SH1107_WriteCommand (SH1107_RIGHT_HORIZONTAL_SCROLL);  // send 0x26
@@ -726,12 +813,12 @@ void SH1107_ScrollRight(uint8_t start_row, uint8_t end_row)
 }
 
 /***************************************************************************//**
-* @brief  				Screen scroll to left.
-*
-* @param	start_row	start_row in uint8_t format. Starting row coordinate for scrolling
-* @param	end_row		end_row in uint8_t format. Ending row coordinate for scrolling
-*
-*******************************************************************************/
+ * @brief  				Screen scroll to left.
+ *
+ * @param	start_row	start_row in uint8_t format. Starting row coordinate for scrolling
+ * @param	end_row		end_row in uint8_t format. Ending row coordinate for scrolling
+ *
+ *******************************************************************************/
 void SH1107_ScrollLeft(uint8_t start_row, uint8_t end_row)
 {
 	SH1107_WriteCommand (SH1107_LEFT_HORIZONTAL_SCROLL);  // send 0x26
@@ -745,12 +832,12 @@ void SH1107_ScrollLeft(uint8_t start_row, uint8_t end_row)
 }
 
 /***************************************************************************//**
-* @brief  				Screen scroll to diagonal right.
-*
-* @param	start_row	start_row in uint8_t format. Starting row coordinate for scrolling
-* @param	end_row		end_row in uint8_t format. Ending row coordinate for scrolling
-*
-*******************************************************************************/
+ * @brief  				Screen scroll to diagonal right.
+ *
+ * @param	start_row	start_row in uint8_t format. Starting row coordinate for scrolling
+ * @param	end_row		end_row in uint8_t format. Ending row coordinate for scrolling
+ *
+ *******************************************************************************/
 void SH1107_Scrolldiagright(uint8_t start_row, uint8_t end_row)
 {
 	SH1107_WriteCommand(SH1107_SET_VERTICAL_SCROLL_AREA);  // sect the area
@@ -768,12 +855,12 @@ void SH1107_Scrolldiagright(uint8_t start_row, uint8_t end_row)
 
 
 /***************************************************************************//**
-* @brief  				Screen scroll to diagonal left.
-*
-* @param	start_row	start_row in uint8_t format. Starting row coordinate for scrolling
-* @param	end_row		end_row in uint8_t format. Ending row coordinate for scrolling
-*
-*******************************************************************************/
+ * @brief  				Screen scroll to diagonal left.
+ *
+ * @param	start_row	start_row in uint8_t format. Starting row coordinate for scrolling
+ * @param	end_row		end_row in uint8_t format. Ending row coordinate for scrolling
+ *
+ *******************************************************************************/
 void SH1107_Scrolldiagleft(uint8_t start_row, uint8_t end_row)
 {
 	SH1107_WriteCommand(SH1107_SET_VERTICAL_SCROLL_AREA);  // sect the area
@@ -790,20 +877,20 @@ void SH1107_Scrolldiagleft(uint8_t start_row, uint8_t end_row)
 }
 
 /***************************************************************************//**
-* @brief  				Screen scroll stop
-*
-*******************************************************************************/
+ * @brief  				Screen scroll stop
+ *
+ *******************************************************************************/
 void SH1107_Stopscroll(void)
 {
 	SH1107_WriteCommand(SH1107_DEACTIVATE_SCROLL);
 }
 
 /***************************************************************************//**
-* @brief  				Invert screen color
-*
-* @param	state		state in uint8_t format. If state is 0 non-inverting display, otherwise inverting display.
-*
-*******************************************************************************/
+ * @brief  				Invert screen color
+ *
+ * @param	state		state in uint8_t format. If state is 0 non-inverting display, otherwise inverting display.
+ *
+ *******************************************************************************/
 void SH1107_InvertDisplay(uint8_t state)
 {
 	if (state) SH1107_WriteCommand (SH1107_INVERT_ON);
@@ -813,17 +900,17 @@ void SH1107_InvertDisplay(uint8_t state)
 }
 
 /***************************************************************************//**
-* @brief  				Draw bitmap to screen
-*
-* @param	x			x in int16_t format for start position of row coordinate
-* @param	y			y in int16_t format for start position of column coordinate
-* @param	bitmap		bitmap in unsigned char pointer format for bitmap data buffer.
-* @param	w			w in int16_t format for bitmap width.
-* @param	h			h in int16_t format for bitmap height.
-* @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
-*
-*
-*******************************************************************************/
+ * @brief  				Draw bitmap to screen
+ *
+ * @param	x			x in int16_t format for start position of row coordinate
+ * @param	y			y in int16_t format for start position of column coordinate
+ * @param	bitmap		bitmap in unsigned char pointer format for bitmap data buffer.
+ * @param	w			w in int16_t format for bitmap width.
+ * @param	h			h in int16_t format for bitmap height.
+ * @param	color	The color of the lines. Color is enumeration with SH1107_COLOR_t. See sh1107.h for more details about color.
+ *
+ *
+ *******************************************************************************/
 void SH1107_DrawBitmap(int16_t x, int16_t y, const unsigned char* bitmap, int16_t w, int16_t h, uint16_t color)
 {
 
@@ -848,9 +935,9 @@ void SH1107_DrawBitmap(int16_t x, int16_t y, const unsigned char* bitmap, int16_
 }
 
 /***************************************************************************//**
-* @brief  				Invert mode toggle
-*
-*******************************************************************************/
+ * @brief  				Invert mode toggle
+ *
+ *******************************************************************************/
 void SH1107_ToggleInvert(void) {
 	uint16_t i;
 

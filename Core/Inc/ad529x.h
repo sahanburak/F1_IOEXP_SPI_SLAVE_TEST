@@ -57,6 +57,8 @@
 #define AD529x_RESET_HIGH       	GPIO1_HIGH
 
 #define AD529x_SLAVE_ID        		1
+
+#define MAX_RES_VALUE 200000
 /*============================================================================*/
 /* Global data                                                                */
 /*============================================================================*/
@@ -65,8 +67,8 @@
 /* Declarations                                                               */
 /*============================================================================*/
 
-#define AD529x_CS_HIGH()		HAL_GPIO_WritePin(SPI3_CS_GPIO_Port, SPI3_CS_Pin, GPIO_PIN_SET);
-#define AD529x_CS_LOW()			HAL_GPIO_WritePin(SPI3_CS_GPIO_Port, SPI3_CS_Pin, GPIO_PIN_RESET);
+#define AD529x_CS_HIGH()		HAL_GPIO_WritePin(LVDT_POT_CS_GPIO_Port, LVDT_POT_CS_Pin, GPIO_PIN_SET);
+#define AD529x_CS_LOW()			HAL_GPIO_WritePin(LVDT_POT_CS_GPIO_Port, LVDT_POT_CS_Pin, GPIO_PIN_RESET);
 
 void AD529x_SetRegister(unsigned char command, unsigned short data);
 void AD529x_SetResistor(uint32_t res);
